@@ -1,0 +1,16 @@
+David Kang and Qizhen Sally He
+
+Neural Network-based Machine Learning
+Project Proposal
+
+Dataset: Electricity
+
+Our current plan is to use Midwest Independent Transmission System Operator (MISO)’s historical electricity data. The website provides hour-by-hour data going back two years in csv files that include important market information such as price, bid, offer, etc. 
+
+We think this will be a substantial amount of data to work with. Our rough guess is that there are several GBs of data available. We might also supplement our data with other sources (e.g. weather data) if we think there are additional relevant inputs.
+
+The Project: Neural Networks
+
+Our goal is to use neural networks to see if machine learning can uncover interesting trends in the electricity data. A source in the financial industry told us that he believes there are wild mispricings in this market, and that they may follow observable patterns. We’ll design our prototype in Python using a library called PyBrain, which supplies a library of functions that work with neural nets. We’d like our prototype to give us predictions for electricity prices on a testing dataset. However, given that we’ll be using a small dataset at this point, we don’t really expect these predictions to be any good.
+
+Our final result will hopefully parallelize the different ‘neural nets’ to different computers, allowing us to run to large datasets in quicker time. The best case scenario for this project would be if our program detects mispricings ahead of time.  However, we’re realistic – electricity is a competitive market and the prices are usually correct. It’s possible our program will return results that are no better than random. 
