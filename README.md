@@ -1,4 +1,5 @@
-Neural Nets - Sally He and David Kang
+Neural Nets
 =======
+David Kang and Sally He
 
 yolo
