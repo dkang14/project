@@ -1,4 +1,4 @@
-"""Neural Network - Supervised Learning YOLO
+"""Neural Network - Supervised Learning
     David Kang and Sally He"""
 
 
