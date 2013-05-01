@@ -2,16 +2,12 @@
     David Kang and Sally He"""
 
 
-'''**The model is extremely sensitive to initial parameter choices**
+'''**The model attempts to identify patterns in data**
 
-(We've found the model works well when weights are set to generate
-randomly from (-1,1), and the learning rate for the hidden layer
-is set to 0.001. A high learning rate is to be avoided as it "locks"
-the neural net into a fixed configuration).
-
-**Input and output range: [-1,1]**'''
-
-
+(Care should be taken in choosing parameter specifications. The learning rate and
+associated learning curve will affect both speed and reliability of convergence, and
+the same is true for the number of nodes used in the hidden layer).
+'''
 
 
 import random as rand
@@ -26,6 +22,7 @@ class Neuron:
         self.inputs = None
         self.weights = None
         self.raw_value = None
+        self.bias = None
         self.transformed_value = None
         self.error = None
 
@@ -49,10 +46,32 @@ class Neuron:
         for x in dot:
             self.raw_value = self.raw_value + x
 
+
+class HiddenNeuron(Neuron):
+    def setnew_weights(self):
+        self.bias = rand.uniform(-1,1)
+        self.weights = [rand.uniform(-1,1) for x in range(self.inputlen)]
+
+    def genraw(self):
+        dot = [self.inputs[x]*self.weights[x]
+                          for x in range(self.inputlen)]
+        self.raw_value = 0
+        for x in dot:
+            self.raw_value = self.raw_value + x
+        self.raw_value = self.raw_value + self.bias
+
     def activate(self):
         """Here we use the logistic/sigmoid function"""
 
         self.transformed_value = sigmoid(self.raw_value)
+        
+
+class OutputNeuron(Neuron):
+    def activate(self):
+        '''Identify'''
+        self.transformed_value = self.raw_value
+
+##### Activation/Learning Functions - Move to separate file later #####        
         
 def safeExp(x):
     """ Bounded range for the exponential function (won't produce inf or NaN). """
@@ -63,27 +82,40 @@ def sigmoid(x):
     """ Logistic sigmoid function. """
     return 1. / (1. + safeExp(-x*10))
 
+def const_learning(x):
+    return 1.
+
+def descent_learning(x):
+    """ Logistic sigmoid function. """
+    if x < .1:
+        return 1.
+    else:
+        return 1.5 - x
+
 
 def sigmoidPrime(x):
     """ Derivative of logistic sigmoid. """
     tmp = sigmoid(x)
     return tmp * (1 - tmp)
 
+#####################
 
 class Network:
     """initiate # of Neurons per layer"""
     def __init__(self,inputlayer,hiddenlayer,outputlayer):
-        self.hiddenlayer = self.addNeurons(inputlayer,hiddenlayer)
-        self.outputlayer = self.addNeurons(hiddenlayer,outputlayer)
+        self.hiddenlayer = self.addNeurons(inputlayer,hiddenlayer,HiddenNeuron)
+        self.outputlayer = self.addNeurons(hiddenlayer,outputlayer,OutputNeuron)
         self.input = None
         self.target = None
         self.output = None
+        
 
-    def addNeurons(self, numInputs, numNeurons):
-        Neurons = [Neuron(numInputs) for x in range(numNeurons)]
+    def addNeurons(self, numInputs, numNeurons,Neurontype):
+        Neurons = [Neurontype(numInputs) for x in range(numNeurons)]
         for x in Neurons:
             x.setnew_weights()
         return Neurons
+        
 
     
     def add_dataset(self,input_dataset,target_dataset):
@@ -120,29 +152,33 @@ class Network:
             self.hiddenlayer[x].error = error
 
         
-    def backprop_weight(self,learning_rate_output, learning_rate_hidden):
+    def backprop_weight(self,learning_rate):
         '''adjusts weights in each layer by gradient descent'''
         for y in self.outputlayer:              #For each Neuron
             for i in range(y.inputlen):         #For each weight
                 delta = y.error*y.inputs[i]
-                y.weights[i] = -learning_rate_output*delta + y.weights[i]
+                y.weights[i] = -learning_rate*delta + y.weights[i]
 
         for x in self.hiddenlayer:
             for i in range(x.inputlen):
                 delta = x.error*x.inputs[i]
-                x.weights[i] = -learning_rate_hidden*delta + x.weights[i]
+                x.weights[i] = -learning_rate*delta + x.weights[i]
+            x.bias = -learning_rate * x.error + x.bias
 
-    def train_one_iteration(self,learning_rate_output = .1, learning_rate_hidden = .001):
+    def train_one_iteration(self,learning_rate = .05):
         '''iterates through one epoch of training'''
         for data in zip(self.input,self.target):
             self.feedforward(data[0])
             self.backprop_error(data[1])
-            self.backprop_weight(learning_rate_output, learning_rate_hidden)
+            self.backprop_weight(learning_rate)
 
-    def train(self,num_iterations,learning_rate_output = .1, learning_rate_hidden = .001):
+    def train(self,num_iterations, learning_rate = .05, learning_curve = const_learning):
+        '''Train on dataset for n epochs'''
         print "Learning..."
         for x in range(num_iterations):
-            self.train_one_iteration(learning_rate_output,learning_rate_hidden)
+            iter_frac = float(x)/num_iterations
+            adjusted_learning_rate = learning_rate*learning_curve(iter_frac)
+            self.train_one_iteration(adjusted_learning_rate)
             print "Epoch iteration: " + str(x+1)
         print "Done."
             
