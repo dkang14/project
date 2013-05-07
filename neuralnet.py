@@ -2,11 +2,11 @@
     David Kang and Sally He"""
 
 
-'''**The model attempts to identify patterns in data**
+'''**Standard Neural Net implementation with feedforward and backpropagation**
 
 (Care should be taken in choosing parameter specifications. The learning rate and
-associated learning curve will affect both speed and reliability of convergence, and
-the same is true for the number of nodes used in the hidden layer).
+associated learning curve will affect both speed and reliability of convergence, as
+will the number of nodes used in the hidden layer).
 '''
 
 
