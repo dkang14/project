@@ -1,5 +1,7 @@
 #ifndef NEURON_H
 #define NEURON_H
+#include <vector>
+using namespace std;
 
 class Neuron
 {
@@ -9,16 +11,10 @@ class Neuron
         Neuron(int inputlen);
         /** Default destructor */
         virtual ~Neuron();
-        /** Access inputlen
-         * \return The current value of inputlen
-         */
         int Getinputlen() { return inputlen; }
-        /** Set inputlen
-         * \param val New value to set
-         */
         void Setinputlen(int val) { inputlen = val; }
         void init(int inputlen);
-        void addinputs(double inputlist[], int len);
+        void addinputs(vector<double> inputlist);
         void set_testweights();
         void set_newweights();
         void genraw();
@@ -36,13 +32,13 @@ class Neuron
 
     protected:
 
-        int inputlen; //!< Member variable "inputlen"
-        double * inputs; //!< Member variable "inputs"
-        double * weights; //!< Member variable "weights"
-        double bias; //!< Member variable "bias"
-        double transformed_value; //!< Member variable "transformed_value"
-        double raw_value; //!< Member variable "raw_value"
-        double error; //!< Member variable "error"
+        int inputlen;
+        vector<double> inputs;
+        vector<double> weights;
+        double bias;
+        double transformed_value;
+        double raw_value;
+        double error;
     private:
 
 };

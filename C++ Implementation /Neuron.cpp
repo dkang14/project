@@ -1,6 +1,5 @@
 #include "Neuron.h"
 #include <stdlib.h>
-
 #include <iostream>
 
 using namespace std;
@@ -8,14 +7,11 @@ using namespace std;
 Neuron::Neuron()
 {
     this->inputlen = 0;//ctor
-    this ->inputs = NULL;
-    this->weights = NULL;
 }
 
 Neuron::Neuron(int inputlen)
 {
     this->inputlen = inputlen;//ctor
-    this ->inputs = NULL;
 }
 
 Neuron::~Neuron()
@@ -26,32 +22,18 @@ Neuron::~Neuron()
 void Neuron::init(int inputlen)
 {
     this->inputlen = inputlen;//ctor
-    this->inputs = new double[inputlen];
-    this->weights = new double[inputlen];
+    this->weights.assign(inputlen,0.0);
+    this->inputs.assign(inputlen,0.0);
     this->bias = 0.5;
     this->raw_value = 0.0;
     this->transformed_value = 0.0;
+
 }
 
-void Neuron::addinputs(double inputlist[], int len)
+void Neuron::addinputs(vector<double> inputlist)
 {
-    //todo
-    /*
-    if len(inputlist) == self.inputlen:
-            self.inputs = inputlist
-        else:
-            raise NameError('InputLen_Mismatch')
-     */
-     if(len != inputlen)
-     {
-         cout<<"input length not match!"<<endl;//print error message and
-         return;
-
-     }
-     for(int i = 0; i<inputlen; i++)
-     {
-         inputs[i] = inputlist[i];
-     }
+    if(inputlist.size() != inputlen) {cout<<inputlist.size()<<"input length mismatch"<<inputlen<<endl; return;}
+    this->inputs = inputlist;
 }
 
 void Neuron::set_testweights()
@@ -59,7 +41,7 @@ void Neuron::set_testweights()
     // self.weights = [.5 for x in range(self.inputlen)]
     for(int i = 0; i<inputlen; i++)
      {
-         weights[i] = 0.5;
+         weights[i]=0.5;
      }
 }
 
@@ -71,14 +53,14 @@ void Neuron::set_newweights()
     */
      for(int i = 0; i<inputlen; i++)
      {
-         weights[i] = 1.0 - 2*((double)rand())/RAND_MAX;
+         weights[i]= 1.0 - 2*((double)rand())/RAND_MAX;
      }
 }
 
 void Neuron::print()
 {
      cout<<"inputs-weights :";
-     for(int i = 0; i<inputlen; i++)
+     for(int i = 0, len = inputs.size();i<len;  i++)
      {
          cout<<inputs[i]<<"-"<<weights[i]<<"; ";
      }

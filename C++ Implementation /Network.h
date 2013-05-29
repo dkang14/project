@@ -10,13 +10,23 @@ class Network
 {
     public:
         /** Default constructor */
-        Network(int num_inputlayer, int num_hiddenlayer, int num_outputlayer);
+        Network(int num_inputlayer, int num_hiddenlayer, int num_outputlayer, const char * errologfilename);
         /** Default destructor */
         virtual ~Network();
-        void add_dataset(double input_dataset[], int input_dataset_len, double target_dataset[], int target_dataset_len);
-        void print();
-        void printoutput(double input_dataset[], int input_dataset_len, double target_dataset[], int target_dataset_len);
+
+        void add_dataset(vector<vector<double> > input_dataset, vector<vector<double> > target_dataset);
+        void print(); //!< for debug, print out network detail;
+        void printoutputlayer(); //!<for debug, print output layer detail
+        void printoutput(vector<vector<double> > input_dataset, vector<vector<double> > target_dataset); //!< for debug , print output and target
         void train(int num_iteration, double learning_rate, bool decent_learning);
+        void feedforward(vector<double>  inputlist);
+        void save_errorlist();
+
+        vector<double> output;
+        double square_error;  //!< square_error = {sum of ( sum of square error of each output )}/length of dataset
+        vector<double> errorlist; //!<store square error along the training
+        const char * errorlogfie; //!< file to save the error log
+
     protected:
     private:
         HiddenNeuron * hiddenlayer; //!<pointer to an array of neuron in hiddenlayer
@@ -24,18 +34,11 @@ class Network
         int num_inputlayer;
         int num_hiddenlayer;
         int num_outputlayer;
-        double * hidden_output;
-        double * output; //!< pointer to output array
+        vector<double> hidden_output;
+        vector<vector<double> > input_dataset;
+        vector<vector<double> > target_dataset;
 
-        double ** input_array; //!<pointer to input data array set
-        int inputset_len; //!< input data set length
-        double ** target_array; //!< pointer to target deta array set
-        int targetset_len; //!< target data length
-        int outputlen; //!< output data length
-
-
-        void feedforward(double* inputlist, int inputlist_len);
-        void backprop_error(double* targetlist, int targetlist_len);
+        void backprop_error(vector<double>  targetlist);
         void backprop_weight(double learning_rate);
         void train_one_iteration(double learning_rate);
 

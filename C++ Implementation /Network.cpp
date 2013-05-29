@@ -3,24 +3,16 @@
 #include "OutputNeuron.h"
 #include <iostream>
 #include "AuxFunctions.h"
-
+#include <fstream>
 
 using namespace std;
 
-Network::Network(int num_inputlayer, int num_hiddenlayer, int num_outputlayer)
+Network::Network(int num_inputlayer, int num_hiddenlayer, int num_outputlayer, const char * errorlogfilename)
 {
-    //ctor
-    /* """initiate # of Neurons per layer"""
-    def __init__(self,inputlayer,hiddenlayer,outputlayer):
-        self.hiddenlayer = self.addNeurons(inputlayer,hiddenlayer,HiddenNeuron)
-        self.outputlayer = self.addNeurons(hiddenlayer,outputlayer,OutputNeuron)
-        self.input = None
-        self.target = None
-        self.output = None
-    */
     this->num_inputlayer = num_inputlayer;
     this->num_hiddenlayer = num_hiddenlayer;
     this->num_outputlayer = num_outputlayer;
+    this->errorlogfie = errorlogfilename;
     outputlayer = new OutputNeuron[num_outputlayer];
     for(int i = 0; i< num_outputlayer; i++)
     {
@@ -28,8 +20,6 @@ Network::Network(int num_inputlayer, int num_hiddenlayer, int num_outputlayer)
         outputlayer[i].Setinputlen(num_hiddenlayer);
         outputlayer[i].set_newweights();
     }
-    output = new double[num_outputlayer];
-
     hiddenlayer = new HiddenNeuron[num_hiddenlayer];
     for(int i = 0; i< num_hiddenlayer; i++)
     {
@@ -37,9 +27,8 @@ Network::Network(int num_inputlayer, int num_hiddenlayer, int num_outputlayer)
         hiddenlayer[i].Setinputlen(num_inputlayer);
         hiddenlayer[i].set_newweights();
     }
-    hidden_output = new double[num_hiddenlayer];
-
-
+    hidden_output.assign(num_hiddenlayer,0);
+    output.assign(num_outputlayer,0);
 }
 
 Network::~Network()
@@ -47,59 +36,39 @@ Network::~Network()
     //dtor
 }
 
-void Network::add_dataset(double input_dataset[], int input_dataset_len, double target_dataset[], int target_dataset_len)
+void Network::add_dataset(vector<vector<double> > input_dataset, vector<vector<double> > target_dataset)
 {
-    inputset_len = input_dataset_len;
-    input_array = new double*[inputset_len];
-    for(int i = 0; i<input_dataset_len; i++)
-    {
-        input_array[i] = new double[num_inputlayer];
-        for(int j = 0; j<num_inputlayer; j++)
-        {
-            input_array[i][j]= input_dataset[i*num_inputlayer+j];
-        }
-    }
-    targetset_len = target_dataset_len;
-    target_array = new double * [targetset_len];
-    for(int i = 0; i<target_dataset_len; i++)
-    {
-
-         target_array[i] = new double[num_outputlayer];
-         for(int j = 0; j<num_outputlayer; j++)
-        {
-            target_array[i][j]= target_dataset[i*num_outputlayer+j];
-        }
-    }
-
+    this->input_dataset = input_dataset;
+    this->target_dataset = target_dataset;
 }
 
-void Network::feedforward(double* inputlist, int inputlist_len)
+void Network::feedforward(vector<double> inputlist)
 {
     /*
       def feedforward(self, inputlist):
         """computes an output given an input, given current set of weights"""
 
     */
-
-
-    double* hidden_output = new double[num_hiddenlayer];
     for(int i = 0; i<num_hiddenlayer; i++)
     {
-        hiddenlayer[i].addinputs(inputlist, num_inputlayer);
+        hiddenlayer[i].addinputs(inputlist);
         hiddenlayer[i].genraw();
         hiddenlayer[i].activate();
         hidden_output[i] = hiddenlayer[i].get_transformed_value();
     }
+
     for(int i = 0; i<num_outputlayer; i++)
     {
-        outputlayer[i].addinputs(hidden_output, num_hiddenlayer);
+        outputlayer[i].addinputs(hidden_output);
         outputlayer[i].genraw();
         outputlayer[i].activate();
         output[i] = outputlayer[i].get_transformed_value();
+        //output[i]=inputlist[i];
+
     }
 }
 
-void  Network::backprop_error(double* targetlist, int targetlist_len)
+void  Network::backprop_error(vector<double> targetlist)
 {
    /*
     def backprop_error(self,targetlist):
@@ -108,8 +77,11 @@ void  Network::backprop_error(double* targetlist, int targetlist_len)
    */
    for(int i = 0; i<num_outputlayer; i++)
    {
-       double err = outputlayer[i].get_transformed_value() - targetlist[i];
+       double err = output[i] - targetlist[i];
        outputlayer[i].set_error(err);
+       // Compute MSE for first 24 outputs, ie the prices
+       if (i < 24)
+       square_error = square_error + err*err;
    }
    for(int i = 0; i< num_hiddenlayer;i++)
    {
@@ -149,35 +121,17 @@ void Network::backprop_weight(double learning_rate)
 
 void Network::train_one_iteration(double learning_rate)
 {
-    for(int i=0; i<inputset_len;i++)
+    square_error = 0;
+    for(int i=0, len = input_dataset.size(); i<len; i++)
     {
-/*
-        cout<<"input:";
-        for(int j=0; j<num_inputlayer;j++)
-        {
-            cout<<input_array[i][j]<<"  ";
-        }
-        cout<<endl;
-*/
-        feedforward(input_array[i],num_inputlayer);
-/*
-        cout<<"output: ";
-        for(int j=0; j<num_outputlayer;j++)
-        {
-            cout<<output[j]<<"  ";
-        }
-        cout<<endl;
-        cout<<"target: ";
 
-        for(int j=0; j<num_outputlayer;j++)
-        {
-            cout<<target_array[i][j]<<"  ";
-        }
-        cout<<endl;
-*/
-        backprop_error(target_array[i],num_outputlayer);
+        feedforward(input_dataset[i]);
+        backprop_error(target_dataset[i]);
         backprop_weight(learning_rate);
     }
+    cout<<"total error: "<<square_error/input_dataset.size()<<endl;
+    errorlist.push_back(square_error/input_dataset.size());
+
 }
 
 void Network::train(int num_iteration, double learning_rate, bool decent_learn)
@@ -196,7 +150,7 @@ void Network::train(int num_iteration, double learning_rate, bool decent_learn)
             adjusted_learning_rate = learning_rate * const_learning(iter_frac);
         }
     train_one_iteration(adjusted_learning_rate);
-    std::cout<<"Epoch iteration:"<<i+1<<endl;
+    std::cout<<endl<<"Epoch iteration:"<<i+1<<endl;
     }
     cout<<"done"<<endl;
 }
@@ -218,19 +172,41 @@ void Network::print()
 
 }
 
-void Network::printoutput(double input_dataset[], int input_dataset_len, double target_dataset[], int target_dataset_len)
+void Network::printoutputlayer()
 {
-    add_dataset(input_dataset, input_dataset_len,target_dataset,target_dataset_len);
-
-    for(int i=0; i<input_dataset_len; i++)
+    cout<<"outputlayer"<<endl;
+     for(int i =0; i< num_outputlayer; i++)
     {
-        feedforward(input_array[i],num_inputlayer);
+        outputlayer[i].print();
+    }
+    cout<<endl;
+
+}
+
+void Network::printoutput(vector<vector<double> > input_dataset, vector<vector<double> > target_dataset)
+{
+    add_dataset(input_dataset,target_dataset);
+
+    for(int i=0, len = input_dataset.size(); i< len; i++)
+    {
+        feedforward(input_dataset[i]);
         for(int j=0;j<num_outputlayer;j++)
         {
             cout<<"data "<<i<<": ";
-            cout<<"output"<<j<<":"<<output[j]<<", target"<<j<<": "<<target_array[i][j]<<endl;
+            cout<<"output"<<j<<":"<<output[j]<<", target"<<j<<": "<<target_dataset[i][j]<<endl;
         }
         cout<<endl;
 
     }
+}
+
+void Network::save_errorlist()
+{
+    ofstream out(errorlogfie);
+    for (int i =0, len = errorlist.size(); i < len; i++)
+    {
+        out<<errorlist[i]<<endl;
+    }
+    out.close();
+
 }
