@@ -1,3 +1,0 @@
-
-all: 
-	g++ main.cpp AuxFunctions.cpp HiddenNeuron.cpp Network.cpp Neuron.cpp OutputNeuron.cpp -o main
