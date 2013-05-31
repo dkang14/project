@@ -103,7 +103,7 @@ void Output::PL_analyzer()
     for(int i, len = outputplus.size(); i < len; i++)
     {
         double PL = outputplus[i].target - outputplus[i].input;
-        if(outputplus[i].output >= outputplus[i].input) PL = -PL;
+        if(outputplus[i].output <= outputplus[i].input) PL = -PL;
         Daily_PL.push_back(PL);
 
     }
@@ -137,7 +137,7 @@ void Output::write(string node = "", bool append = false)
              day = day +1;
         }
         PL = outputplus[i].target - outputplus[i].input;
-        if(outputplus[i].output >= outputplus[i].input) PL = -PL;
+        if(outputplus[i].output <= outputplus[i].input) PL = -PL;
         out<<outputplus[i].input*100<<", "<<outputplus[i].target*100<<", "<<outputplus[i].output*100<<
         ", "<<PL*100<< endl;
         hour = hour +1;

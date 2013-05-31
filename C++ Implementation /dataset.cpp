@@ -89,7 +89,7 @@ vector<vector<double> >  Dataset::extract(vector<string> nodes, const char* path
                             else  temp_double.push_back(0.0);
                         }
                         temp_double.push_back(dateindex);
-                        temp_double.push_back(0.0);
+                        //temp_double.push_back(0.0);
                         cleandata.push_back(temp_double);
 
                     }

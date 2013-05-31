@@ -8,7 +8,7 @@
 #include<exception>
 #include "Network.h"
 #include "AuxFunctions.h"
-#include "Dataset.h"
+#include "dataset.h"
 #include "output.h"
 
 using namespace std;
@@ -29,8 +29,8 @@ int main(int argc, char** argv)
     int numNeurons = 10;
     int numtraining_sessions = 10;
     double learning_rate = .05;
-    const char * errorlogfile = "Data/errorlog.csv";
-    const char * outputfile = "Data/output.csv";
+    const char * errorlogfile = "Output/errorlog.csv";
+    const char * outputfile = "Output/output.csv";
     
     // Parse command-line options
 	while ((opt = getopt(argc, argv, "d:i:t:k:n:l:e:o:vh")) != -1)

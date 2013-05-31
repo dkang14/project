@@ -26,7 +26,7 @@ def main(nodes_file, training_file, testing_file, numNeurons, numEpochs, learnin
 
     print "\nRunning testing set..."
     output = datautil.Output(testing_set,net)
-    output.analyze_by_node(Overall = True)
+    output.analyze_by_node(Overall = False)
 
 
 x = main(str(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3]), int(sys.argv[4]), int(sys.argv[5]), float(sys.argv[6]))
