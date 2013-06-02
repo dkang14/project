@@ -35,9 +35,8 @@ vector<vector<double> >  Dataset::extract(vector<string> nodes, const char* path
     dir = opendir(pathname);
     while ((pdir = readdir(dir)))
     {
-        int len = pdir->d_namlen;
         char * filename = pdir->d_name;
-        if(filename[len-1]=='v' && filename[len-2]=='s' && filename[len-3]=='c')
+        if(filename[0] == '2')
         {
              files.push_back( filename );
 

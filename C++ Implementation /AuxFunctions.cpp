@@ -2,6 +2,7 @@
 #include "AuxFunctions.h"
 #include <fstream>
 #include <iostream>
+#include <stdlib.h>
 using namespace std;
 
 
